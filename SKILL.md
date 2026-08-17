@@ -87,6 +87,7 @@ Read [references/paper-map.md](references/paper-map.md) before updating a map. U
 ## Quality bar
 
 - Prefer causal explanation over abstract paraphrase.
+- In `/start`, combine task failures and baseline limitations under `论文遇到的问题` as a direct list, then state `论文的方法`. Do not repeat the same content across problem, baseline-failure, and key-insight cards.
 - Render `/start` as a spacious card with clear section breaks, original paper objects, a pipeline delta, a must-read board, and one immediate action. Do not compress the whole paper into one dense table or place introductory prose before the card.
 - Keep the first layer readable; expand mathematics only when useful or requested.
 - State what ablations or experiments actually demonstrate, not what they merely suggest.
@@ -94,3 +95,4 @@ Read [references/paper-map.md](references/paper-map.md) before updating a map. U
 - Preserve uncertainty and missing information.
 - Avoid generic praise, exhaustive related-work dumps, and false precision.
 - Make the final takeaway answer: what changed, where it changed, why it works, and what the evidence supports.
+
