@@ -17,6 +17,7 @@ PaperLens 是一个 Codex Skill，用于辅助研究者交互式阅读论文。�
 ### PaperLens 能做什么
 
 - 上传论文 PDF 后生成分区舒展的 Reading Card，而不是一段改写摘要或一张拥挤表格。
+- 从论文 PDF 中裁取真实的图、表和关键公式并嵌入卡片，不用 AI 重画图冒充原文。
 - 将阅读顺序组织成“目的—位置—离开问题”的认知旅程，并可生成响应式 HTML 时间线。
 - 结合上下文解释选中段落、图、表和公式。
 - 将论文创新定位到 CV/3D Vision 技术管线中。
@@ -30,7 +31,7 @@ PaperLens 是一个 Codex Skill，用于辅助研究者交互式阅读论文。�
 
 | 命令 | 作用 |
 |---|---|
-| `/start` | 生成分区式 Reading Card、阅读取舍与带目标和检查问题的可视化路线。 |
+| `/start` | 生成包含论文真实图表/公式、阅读取舍和可视化路线的分区式 Reading Card。 |
 | `/explain` | 解释一段内容在做什么、为什么存在以及位于管线哪里。 |
 | `/figure N` | 解释图或表的目的、阅读顺序和作者希望表达的结论。 |
 | `/formula N` | 从直觉、变量和用途开始解释公式，再按需展开推导。 |
@@ -76,7 +77,21 @@ PaperLens 是一个 Codex Skill，用于辅助研究者交互式阅读论文。�
 >
 > ---
 >
-> ### 03 · 阅读取舍
+> ### 03 · 论文原图、原表与公式
+>
+> **Fig. 2 · PDF 原始裁剪**  
+> 保留图号、panel、图例、坐标与必要 caption。  
+> **读它时看什么：** 输入、表示、改动阶段与输出。
+>
+> **Eq. 7 · PDF 原公式裁剪**  
+> 原公式与核对后的转写并排提供。  
+> **它在方法里的作用：** 说明数学改动进入管线的位置。
+>
+> `Evidence: PDF p.4, Fig. 2 / Eq. 7`　`Confidence: High`
+>
+> ---
+>
+> ### 04 · 阅读取舍
 >
 > | | 精确位置 | 阅读目的 |
 > |---|---|---|
@@ -86,7 +101,7 @@ PaperLens 是一个 Codex Skill，用于辅助研究者交互式阅读论文。�
 >
 > ---
 >
-> ### 04 · 阅读旅程
+> ### 05 · 阅读旅程
 >
 > **01 · 建立全局图**　`Fig. 2`  
 > 目的：确认输入、表示、改动阶段与输出。  
@@ -113,7 +128,7 @@ PaperLens 是一个 Codex Skill，用于辅助研究者交互式阅读论文。�
 > ## ▶ START HERE
 > **先看 Fig. 2，并找出输入、表示、改动阶段和输出。**
 
-四站以上的路线还会通过 `scripts/render_reading_card.py` 生成独立 HTML 卡片：阅读取舍采用整行横向分区，另外包含彩色 Pipeline、纵向时间线、前置知识旁路、明暗主题和窄屏布局。
+四站以上的路线还会通过 `scripts/render_reading_card.py` 生成独立 HTML 卡片：真实图表和公式裁剪会转成 data URI 内嵌，阅读取舍采用整行横向分区，另外包含彩色 Pipeline、纵向时间线、前置知识旁路、明暗主题和窄屏布局。
 
 ```bash
 python scripts/render_reading_card.py --example
@@ -227,6 +242,7 @@ It is especially suited to 3D Vision topics such as NeRF, 3D Gaussian Splatting,
 ## What PaperLens does
 
 - Creates a spacious, sectioned Reading Card after you attach a paper PDF instead of returning renamed prose or one dense table.
+- Crops and embeds real figures, tables, and key equations from the paper PDF instead of replacing them with AI redraws.
 - Turns reading order into a purpose–locator–exit-question journey and can render it as a responsive HTML timeline.
 - Explains selected paragraphs, figures, tables, and equations in context.
 - Locates each contribution in a CV/3D Vision pipeline.
@@ -240,7 +256,7 @@ It is especially suited to 3D Vision topics such as NeRF, 3D Gaussian Splatting,
 
 | Command | Purpose |
 |---|---|
-| `/start` | Build a sectioned Reading Card and a visual route with goals, locators, and exit questions. |
+| `/start` | Build a sectioned Reading Card with real paper figures/equations, reading choices, and a visual route. |
 | `/explain` | Explain what a passage does, why it exists, and where it sits in the pipeline. |
 | `/figure N` | Explain the purpose, reading order, and conclusion of a figure or table. |
 | `/formula N` | Explain an equation from intuition and variables to optional derivation. |
@@ -286,7 +302,21 @@ Natural-language requests work too. For example, “Fig. 4 没看懂” is treat
 >
 > ---
 >
-> ### 03 · Reading choices
+> ### 03 · Original figures, tables, and equations
+>
+> **Fig. 2 · original PDF crop**  
+> Preserve the figure number, panels, legend, axes, and necessary caption.  
+> **What to inspect:** input, representation, changed stages, and output.
+>
+> **Eq. 7 · original equation crop**  
+> Show the original beside any transcription checked against it.  
+> **Its role:** identify where the mathematical change enters the pipeline.
+>
+> `Evidence: PDF p.4, Fig. 2 / Eq. 7`　`Confidence: High`
+>
+> ---
+>
+> ### 04 · Reading choices
 >
 > | | Exact locator | Reading purpose |
 > |---|---|---|
@@ -296,7 +326,7 @@ Natural-language requests work too. For example, “Fig. 4 没看懂” is treat
 >
 > ---
 >
-> ### 04 · Reading journey
+> ### 05 · Reading journey
 >
 > **01 · Build the global picture**　`Fig. 2`  
 > Purpose: identify input, representation, changed stages, and output.  
@@ -323,7 +353,7 @@ Natural-language requests work too. For example, “Fig. 4 没看懂” is treat
 > ## ▶ START HERE
 > **Open Fig. 2 and identify the input, representation, changed stages, and output.**
 
-Routes with four or more stops can also be rendered by `scripts/render_reading_card.py` as a standalone HTML card with full-width horizontal action lanes, a colored pipeline, vertical timeline, prerequisite detour, theme switch, and responsive layout.
+Routes with four or more stops can also be rendered by `scripts/render_reading_card.py` as a standalone HTML card. Real figure/equation crops are embedded as data URIs alongside full-width horizontal action lanes, a colored pipeline, vertical timeline, prerequisite detour, theme switch, and responsive layout.
 
 ```bash
 python scripts/render_reading_card.py --example
