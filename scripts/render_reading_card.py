@@ -4,8 +4,10 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import html
 import json
+import mimetypes
 from pathlib import Path
 from typing import Any
 
@@ -28,6 +30,29 @@ EXAMPLE: dict[str, Any] = {
         "problem": "The direct baseline fails under the paper's target condition.",
         "baseline_failure": "Its representation or renderer ignores the relevant constraint.",
         "key_insight": "Move the constraint into the stage where the failure originates.",
+    },
+    "paper_objects": {
+        "items": [
+            {
+                "kind": "figure",
+                "label": "Fig. 2",
+                "image": "",
+                "paper_text": "Original caption or the exact part needed to read the figure.",
+                "reading_focus": "Identify input, changed stages, and output.",
+                "evidence": "PDF page and figure locator",
+                "confidence": "High",
+            },
+            {
+                "kind": "equation",
+                "label": "Eq. 7",
+                "image": "",
+                "transcription": "Verified transcription, only when checked against the crop.",
+                "paper_text": "Author-provided symbol definition or nearby explanation.",
+                "reading_focus": "Understand what changes and where it enters the pipeline.",
+                "evidence": "PDF page and equation locator",
+                "confidence": "High",
+            },
+        ]
     },
     "pipeline": [
         {"name": "Input", "status": "reused"},
@@ -107,6 +132,7 @@ def require(data: dict[str, Any]) -> None:
         "metadata",
         "decision",
         "core",
+        "paper_objects",
         "pipeline",
         "actions",
         "route",
@@ -119,6 +145,12 @@ def require(data: dict[str, Any]) -> None:
         raise ValueError(f"Missing required keys: {', '.join(missing)}")
     if not isinstance(data["route"], list) or not data["route"]:
         raise ValueError("route must contain at least one reading stage")
+    objects = data["paper_objects"].get("items", [])
+    if not objects:
+        raise ValueError("paper_objects.items must contain at least one real figure, table, or equation")
+    for item in objects:
+        if item.get("kind") not in {"figure", "table", "equation"}:
+            raise ValueError("paper object kind must be figure, table, or equation")
     for stage in data["pipeline"]:
         if stage.get("status") not in {"changed", "reused", "na"}:
             raise ValueError("pipeline status must be changed, reused, or na")
@@ -134,8 +166,57 @@ def render_items(items: list[dict[str, Any]], empty: str) -> str:
     )
 
 
-def render(data: dict[str, Any]) -> str:
+def embed_image(value: str, base_dir: Path) -> str | None:
+    """Return a data URI so the generated HTML remains self-contained."""
+    if not value:
+        return None
+    if value.startswith("data:"):
+        return value
+    if value.startswith(("http://", "https://")):
+        raise ValueError("paper object images must be local PDF crops, not remote URLs")
+    path = Path(value)
+    if not path.is_absolute():
+        path = base_dir / path
+    if not path.is_file():
+        raise ValueError(f"paper object image not found: {path}")
+    mime = mimetypes.guess_type(path.name)[0] or "image/png"
+    encoded = base64.b64encode(path.read_bytes()).decode("ascii")
+    return f"data:{mime};base64,{encoded}"
+
+
+def render_paper_objects(items: list[dict[str, Any]], base_dir: Path) -> str:
+    labels = {"figure": "论文原图", "table": "论文原表", "equation": "论文原公式"}
+    cards: list[str] = []
+    for item in items:
+        source = embed_image(str(item.get("image", "")), base_dir)
+        if source:
+            media = f'<img src="{esc(source)}" alt="{esc(item.get("label", "paper object"))} 原文裁剪">'
+        else:
+            media = '<div class="media-missing">DEMO ONLY · 最终卡片必须放入论文原始裁剪</div>'
+        transcription = ""
+        if item.get("transcription"):
+            transcription = (
+                '<div class="transcription"><b>核对后的转写</b>'
+                f'<code>{esc(item["transcription"])}</code></div>'
+            )
+        cards.append(
+            f'<article class="paper-object {esc(item["kind"])}">'
+            f'<div class="object-media">{media}</div>'
+            '<div class="object-reading">'
+            f'<div class="object-label"><span>{esc(labels[item["kind"]])}</span><code>{esc(item.get("label", "未定位"))}</code></div>'
+            f'<p class="paper-text"><b>论文原文 / Caption</b>{esc(item.get("paper_text", "论文未说明"))}</p>'
+            f'{transcription}'
+            f'<p class="reading-focus"><b>读它时看什么</b>{esc(item.get("reading_focus", ""))}</p>'
+            f'<div class="object-evidence"><span>Evidence · {esc(item.get("evidence", "未定位"))}</span>'
+            f'<span>Confidence · {esc(item.get("confidence", "Low"))}</span></div>'
+            '</div></article>'
+        )
+    return "".join(cards)
+
+
+def render(data: dict[str, Any], base_dir: Path | None = None) -> str:
     require(data)
+    base_dir = base_dir or Path.cwd()
     metadata = "".join(
         f'<span class="chip"><b>{esc(item.get("label", ""))}</b>{esc(item.get("value", "未核实"))}</span>'
         for item in data["metadata"]
@@ -153,6 +234,7 @@ def render(data: dict[str, Any]) -> str:
             f'<small>{esc(status)}</small></div>'
         )
     actions = data["actions"]
+    paper_objects = render_paper_objects(data["paper_objects"]["items"], base_dir)
     route_parts: list[str] = []
     detour = data.get("detour")
     for number, stage in enumerate(data["route"], 1):
@@ -200,7 +282,21 @@ def render(data: dict[str, Any]) -> str:
 .action-item,.action-item:first-of-type{{display:flex;flex-direction:column;gap:9px;min-width:0;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}}
 .action-item code{{display:block;width:max-content;max-width:100%;white-space:normal;overflow-wrap:anywhere;line-height:1.45}}
 .action-item span{{min-width:0;overflow-wrap:anywhere}}
-@media(max-width:760px){{.action-col{{grid-template-columns:1fr;grid-auto-flow:row;grid-auto-columns:auto;overflow:visible}}.action-col h3{{padding:0 0 2px}}.action-item{{display:grid;grid-template-columns:1fr}}}}
+.paper-objects{{display:grid;gap:22px}}
+.paper-object{{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.9fr);border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--surface-2)}}
+.object-media{{display:grid;place-items:center;min-height:240px;padding:20px;background:#fff;border-right:1px solid var(--line)}}
+.object-media img{{display:block;max-width:100%;max-height:390px;object-fit:contain}}
+.media-missing{{display:grid;place-items:center;width:100%;min-height:200px;border:2px dashed #cbd3df;border-radius:13px;color:#6b7588;font-size:13px;text-align:center;padding:22px}}
+.object-reading{{display:grid;align-content:start;gap:14px;padding:22px}}
+.object-label{{display:flex;align-items:center;justify-content:space-between;gap:12px}}
+.object-label span{{font-weight:850;color:var(--brand)}}
+.paper-text,.reading-focus{{display:grid;gap:5px;margin:0}}
+.paper-text b,.reading-focus b,.transcription b{{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.04em}}
+.transcription{{display:grid;gap:7px;padding:12px;border-radius:11px;background:var(--brand-soft)}}
+.transcription code{{width:100%;white-space:normal;overflow-wrap:anywhere;background:transparent;border:0;padding:0;font-family:"Cambria Math",ui-monospace,monospace}}
+.object-evidence{{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}}
+.object-evidence span{{padding:5px 8px;border-radius:8px;background:var(--surface);border:1px solid var(--line);font-size:12px;color:var(--muted)}}
+@media(max-width:760px){{.action-col{{grid-template-columns:1fr;grid-auto-flow:row;grid-auto-columns:auto;overflow:visible}}.action-col h3{{padding:0 0 2px}}.action-item{{display:grid;grid-template-columns:1fr}}.paper-object{{grid-template-columns:1fr}}.object-media{{border-right:0;border-bottom:1px solid var(--line);min-height:180px}}}}
 </style>
 </head>
 <body>
@@ -215,12 +311,13 @@ def render(data: dict[str, Any]) -> str:
 <div class="panel"><span class="label">🎯 问题</span><strong>{esc(core["problem"])}</strong></div>
 <div class="panel"><span class="label">⚠️ 原方法为什么不行</span><strong>{esc(core["baseline_failure"])}</strong></div>
 <div class="panel"><span class="label">💡 关键洞察</span><strong>{esc(core["key_insight"])}</strong></div></div><div class="pipeline">{''.join(pipeline_parts)}</div></section>
-<section><div class="section-head"><span class="section-no">03</span><h2>阅读取舍</h2></div><div class="action-grid">
+<section><div class="section-head"><span class="section-no">03</span><h2>论文原图、原表与公式</h2></div><div class="paper-objects">{paper_objects}</div></section>
+<section><div class="section-head"><span class="section-no">04</span><h2>阅读取舍</h2></div><div class="action-grid">
 <div class="action-col"><h3>✅ 必看</h3>{render_items(actions.get("must_read", []), "未定位")}</div>
 <div class="action-col"><h3>⏭️ 稍后再读</h3>{render_items(actions.get("later", []), "无")}</div>
 <div class="action-col"><h3>🧊 先补背景</h3>{render_items(actions.get("prerequisite", []), "无")}</div></div></section>
-<section><div class="section-head"><span class="section-no">04</span><h2>阅读旅程</h2></div><div class="journey">{''.join(route_parts)}</div></section>
-<section><div class="section-head"><span class="section-no">05</span><h2>难度与可信度</h2></div><div class="difficulty-grid">{difficulty}</div><div class="evidence">
+<section><div class="section-head"><span class="section-no">05</span><h2>阅读旅程</h2></div><div class="journey">{''.join(route_parts)}</div></section>
+<section><div class="section-head"><span class="section-no">06</span><h2>难度与可信度</h2></div><div class="difficulty-grid">{difficulty}</div><div class="evidence">
 <div><b>Evidence status</b>{esc(evidence["status"])}</div><div><b>Confidence</b>{esc(evidence["confidence"])}</div><div><b>Locators</b>{esc(evidence["locators"])}</div><div><b>Missing / unverified</b>{esc(evidence["missing"])}</div></div></section>
 <div class="cta"><small>▶ START HERE</small><strong>{esc(data["start_here"])}</strong></div>
 </article></main></body></html>'''
@@ -248,7 +345,7 @@ def main() -> int:
     destination = Path(args.output)
     data = json.loads(source.read_text(encoding="utf-8"))
     destination.parent.mkdir(parents=True, exist_ok=True)
-    destination.write_text(render(data), encoding="utf-8")
+    destination.write_text(render(data, source.parent), encoding="utf-8")
     print(destination.resolve())
     return 0
 
