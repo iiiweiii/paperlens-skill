@@ -16,7 +16,8 @@ PaperLens 是一个 Codex Skill，用于辅助研究者交互式阅读论文。�
 
 ### PaperLens 能做什么
 
-- 上传论文 PDF 后生成真正可扫读的卡片式 Reading Card，而不是一段改写摘要。
+- 上传论文 PDF 后生成分区舒展的 Reading Card，而不是一段改写摘要或一张拥挤表格。
+- 将阅读顺序组织成“目的—位置—离开问题”的认知旅程，并可生成响应式 HTML 时间线。
 - 结合上下文解释选中段落、图、表和公式。
 - 将论文创新定位到 CV/3D Vision 技术管线中。
 - 区分复用组件、技术修改和真正的核心创新。
@@ -29,7 +30,7 @@ PaperLens 是一个 Codex Skill，用于辅助研究者交互式阅读论文。�
 
 | 命令 | 作用 |
 |---|---|
-| `/start` | 生成卡片式 Reading Card、必看清单、阅读路线、前置知识和难度判断。 |
+| `/start` | 生成分区式 Reading Card、阅读取舍与带目标和检查问题的可视化路线。 |
 | `/explain` | 解释一段内容在做什么、为什么存在以及位于管线哪里。 |
 | `/figure N` | 解释图或表的目的、阅读顺序和作者希望表达的结论。 |
 | `/formula N` | 从直觉、变量和用途开始解释公式，再按需展开推导。 |
@@ -45,38 +46,79 @@ PaperLens 是一个 Codex Skill，用于辅助研究者交互式阅读论文。�
 
 ### Reading Card 长什么样
 
-`/start` 不再返回连续段落，而是先给出一张可直接指导阅读的卡片：
+`/start` 使用留白和分区建立视觉层级，不再把所有信息塞进一张表：
 
-> ### 📄 PaperLens · Reading Card
-> **Paper title**  
-> `Venue/Year` `Task` `Representation`
+> # 📄 PaperLens
+> ## Paper title
+> `Venue/Year`　`Task`　`Representation`
 >
-> | 阅读决策 | 结论 |
-> |---|---|
-> | **为什么读** | 这篇论文补上了什么具体知识缺口 |
-> | **读完获得** | 读完后能做出的具体判断 |
-> | **预计时间** | `15 min 快读` · `60 min 深读` |
+> ---
 >
-> | 核心判断 | 内容 |
-> |---|---|
-> | 🎯 **Problem** | 论文试图解决的具体失败模式 |
-> | ⚠️ **Baseline failure** | 原方法为什么在这里失效 |
-> | 💡 **Key insight** | 作者用来打开问题的关键观察 |
+> ### 01 · 先决定：值不值得读
 >
-> **Pipeline delta**  
-> `Input reused` → `Pose reused` → `Representation ★changed` → `Rendering ★changed` → `Loss reused`
+> **为什么读**  
+> 这篇论文补上了什么具体知识缺口。
 >
-> | 阅读动作 | 精确位置 |
-> |---|---|
-> | ✅ **必看** | `Fig. 2` · `§3.2` · `Table 3` |
-> | ⏭️ **可跳过** | 暂时不影响理解的章节 |
-> | 🧊 **暂不深究** | 需要额外前置知识的公式或模块 |
+> **读完以后，你应该能判断**  
+> 某项技术改动是否真正解决了目标失败模式。
 >
-> `① Fig. 2` → `② §3.1` → `③ Eq. 7` → `④ Table 3`
+> `快读 15 min`　`深读 60 min`　`优先级 High`
 >
-> **Evidence** `论文 PDF 已定位` · **Confidence** `High`
+> ---
 >
-> ▶ **START HERE：先看 Fig. 2，并确认输入、表示和输出。**
+> ### 02 · 方法主线
+>
+> 🎯 **问题**：论文试图解决的具体失败模式。  
+> ⚠️ **原方法为什么不行**：失败来自哪个假设或管线阶段。  
+> 💡 **关键洞察**：作者把约束放回问题真正发生的位置。
+>
+> `Input reused` → `Representation ★changed` → `Rendering ★changed` → `Output reused`
+>
+> ---
+>
+> ### 03 · 阅读取舍
+>
+> | | 精确位置 | 阅读目的 |
+> |---|---|---|
+> | ✅ 必看 | `Fig. 2` | 建立方法全局图 |
+> | ✅ 必看 | `§3.2 + Eq. 7` | 拆核心机制 |
+> | ⏭️ 稍后再读 | `Related Work` | 只在术语卡住时返回 |
+>
+> ---
+>
+> ### 04 · 阅读旅程
+>
+> **01 · 建立全局图**　`Fig. 2`  
+> 目的：确认输入、表示、改动阶段与输出。  
+> **离开前回答：哪些阶段 changed，哪些 reused？**
+>
+> **02 · 定位失败原因**　`Introduction + Fig. 1`  
+> 目的：把现象连接到 baseline 的具体假设。  
+> **离开前回答：原方法为什么会在这里失效？**
+>
+> ↳ **如果答不出：** 只补 baseline 的表示章节，然后返回第 03 站。
+>
+> **03 · 拆核心机制**　`§3.2 + Eq. 7`  
+> 目的：追踪“原因 → 操作 → 效果”。  
+> **离开前回答：数学上改了什么，进入管线哪里？**
+>
+> **04 · 检查证据**　`Table 2 + Ablation`  
+> 目的：确认实验是否隔离了核心模块的贡献。  
+> **离开前回答：哪项证据真正支持作者的核心解释？**
+>
+> ---
+>
+> **Evidence** `论文 PDF 已定位`　**Confidence** `High`
+>
+> ## ▶ START HERE
+> **先看 Fig. 2，并找出输入、表示、改动阶段和输出。**
+
+四站以上的路线还会通过 `scripts/render_reading_card.py` 生成独立 HTML 卡片：包含彩色 Pipeline、纵向时间线、前置知识旁路、明暗主题和窄屏布局。
+
+```bash
+python scripts/render_reading_card.py --example
+python scripts/render_reading_card.py card.json reading-card.html
+```
 
 ### Evidence 与 Confidence
 
@@ -162,7 +204,8 @@ paperlens-skill/
 │   ├── reading-card.md
 │   └── paper-map.md
 └── scripts/
-    └── paper_map.py
+    ├── paper_map.py
+    └── render_reading_card.py
 ```
 
 ### 范围说明
@@ -183,7 +226,8 @@ It is especially suited to 3D Vision topics such as NeRF, 3D Gaussian Splatting,
 
 ## What PaperLens does
 
-- Creates a genuinely scannable Reading Card after you attach a paper PDF instead of returning a renamed prose summary.
+- Creates a spacious, sectioned Reading Card after you attach a paper PDF instead of returning renamed prose or one dense table.
+- Turns reading order into a purpose–locator–exit-question journey and can render it as a responsive HTML timeline.
 - Explains selected paragraphs, figures, tables, and equations in context.
 - Locates each contribution in a CV/3D Vision pipeline.
 - Separates reused components, technical changes, and actual novelty.
@@ -196,7 +240,7 @@ It is especially suited to 3D Vision topics such as NeRF, 3D Gaussian Splatting,
 
 | Command | Purpose |
 |---|---|
-| `/start` | Build a card-style Reading Card with must-read items, a route, prerequisites, and difficulty estimates. |
+| `/start` | Build a sectioned Reading Card and a visual route with goals, locators, and exit questions. |
 | `/explain` | Explain what a passage does, why it exists, and where it sits in the pipeline. |
 | `/figure N` | Explain the purpose, reading order, and conclusion of a figure or table. |
 | `/formula N` | Explain an equation from intuition and variables to optional derivation. |
@@ -212,38 +256,79 @@ Natural-language requests work too. For example, “Fig. 4 没看懂” is treat
 
 ## What the Reading Card looks like
 
-`/start` begins with a bounded, actionable card rather than continuous prose:
+`/start` uses spacing and sections to build hierarchy instead of packing every fact into one table:
 
-> ### 📄 PaperLens · Reading Card
-> **Paper title**  
-> `Venue/Year` `Task` `Representation`
+> # 📄 PaperLens
+> ## Paper title
+> `Venue/Year`　`Task`　`Representation`
 >
-> | Reading decision | Answer |
-> |---|---|
-> | **Why read it** | The specific knowledge gap filled by the paper |
-> | **What you gain** | The concrete judgment you should make after reading |
-> | **Time** | `15 min quick` · `60 min deep` |
+> ---
 >
-> | Core judgment | Content |
-> |---|---|
-> | 🎯 **Problem** | The precise failure mode addressed by the paper |
-> | ⚠️ **Baseline failure** | Why the direct baseline breaks in this setting |
-> | 💡 **Key insight** | The observation that unlocks the method |
+> ### 01 · Decide whether to read
 >
-> **Pipeline delta**  
-> `Input reused` → `Pose reused` → `Representation ★changed` → `Rendering ★changed` → `Loss reused`
+> **Why read it**  
+> The precise knowledge gap filled by the paper.
 >
-> | Action | Exact location |
-> |---|---|
-> | ✅ **Must read** | `Fig. 2` · `§3.2` · `Table 3` |
-> | ⏭️ **Can skip** | Material that can wait without blocking comprehension |
-> | 🧊 **Defer** | A formula or module requiring extra prerequisites |
+> **After reading, you should be able to judge**  
+> Whether the technical change actually addresses the target failure mode.
 >
-> `① Fig. 2` → `② §3.1` → `③ Eq. 7` → `④ Table 3`
+> `15 min quick`　`60 min deep`　`Priority High`
 >
-> **Evidence** `located in attached PDF` · **Confidence** `High`
+> ---
 >
-> ▶ **START HERE: inspect Fig. 2 and identify the input, representation, and output.**
+> ### 02 · Method through-line
+>
+> 🎯 **Problem:** the precise failure mode.  
+> ⚠️ **Why the baseline fails:** the responsible assumption or pipeline stage.  
+> 💡 **Key insight:** move the constraint to the stage where the failure originates.
+>
+> `Input reused` → `Representation ★changed` → `Rendering ★changed` → `Output reused`
+>
+> ---
+>
+> ### 03 · Reading choices
+>
+> | | Exact locator | Reading purpose |
+> |---|---|---|
+> | ✅ Must read | `Fig. 2` | Build the global method picture |
+> | ✅ Must read | `§3.2 + Eq. 7` | Trace the core mechanism |
+> | ⏭️ Later | `Related Work` | Return only when terminology blocks you |
+>
+> ---
+>
+> ### 04 · Reading journey
+>
+> **01 · Build the global picture**　`Fig. 2`  
+> Purpose: identify input, representation, changed stages, and output.  
+> **Exit question: which stages changed, and which were reused?**
+>
+> **02 · Locate the failure**　`Introduction + Fig. 1`  
+> Purpose: connect the symptom to one baseline assumption.  
+> **Exit question: why does the baseline fail here?**
+>
+> ↳ **If you cannot answer:** read only the baseline representation section, then return to stage 03.
+>
+> **03 · Trace the mechanism**　`§3.2 + Eq. 7`  
+> Purpose: follow cause → operation → intended effect.  
+> **Exit question: what changes mathematically, and where does it enter the pipeline?**
+>
+> **04 · Check the evidence**　`Table 2 + Ablation`  
+> Purpose: determine whether the experiment isolates the core module.  
+> **Exit question: which evidence actually supports the central explanation?**
+>
+> ---
+>
+> **Evidence** `located in attached PDF`　**Confidence** `High`
+>
+> ## ▶ START HERE
+> **Open Fig. 2 and identify the input, representation, changed stages, and output.**
+
+Routes with four or more stops can also be rendered by `scripts/render_reading_card.py` as a standalone HTML card with a colored pipeline, vertical timeline, prerequisite detour, theme switch, and responsive layout.
+
+```bash
+python scripts/render_reading_card.py --example
+python scripts/render_reading_card.py card.json reading-card.html
+```
 
 ## Evidence and confidence
 
@@ -331,7 +416,8 @@ paperlens-skill/
 │   ├── reading-card.md
 │   └── paper-map.md
 └── scripts/
-    └── paper_map.py
+    ├── paper_map.py
+    └── render_reading_card.py
 ```
 
 ## Scope
