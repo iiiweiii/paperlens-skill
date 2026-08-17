@@ -7,6 +7,7 @@ Use this contract for every `/start` response. The result has two layers: a spac
 - Start with the inline card. Add no introductory paragraph.
 - Use six visibly separated zones with blank space between them; do not compress everything into one table.
 - Keep each idea short, but allow two or three lines when causal explanation needs room.
+- Merge the task difficulty and the baseline limitation into one `论文遇到的问题` list. Do not repeat them as separate `问题` and `原方法为什么不行` panels.
 - Put the reading decision first and evidence last.
 - Include 1–3 high-value objects cropped from the actual paper PDF: at least one figure or table, plus a key equation when the paper has one. Never substitute an AI-redrawn diagram.
 - Render `阅读取舍` as three full-width horizontal lanes: category label on the left and reading items flowing to the right. Never squeeze all `必看` items into one narrow vertical column.
@@ -35,16 +36,16 @@ Replace every placeholder and remove inapplicable optional content.
 >
 > ---
 >
-> ### 方法主线
+> ### 问题与方法
 >
-> 🎯 **问题**  
-> {Specific failure mode.}
+> 🎯 **论文遇到的问题**
 >
-> ⚠️ **原方法为什么不行**  
-> {Cause of the baseline failure.}
+> - {Problem or unmet requirement 1.}
+> - {Problem or baseline limitation 2.}
+> - {Problem 3, only when distinct.}
 >
-> 💡 **关键洞察**  
-> {Observation that unlocks the method.}
+> 🛠️ **论文的方法**  
+> {What the paper actually proposes to address the listed problems.}
 >
 > **Pipeline delta**  
 > `…` → `Representation ★changed` → `Optimization reused` → `Rendering ★changed` → `…`
@@ -151,13 +152,14 @@ When the route has four or more stops, write the analyzed card data to a workspa
 python scripts/render_reading_card.py card.json reading-card.html
 ```
 
-The JSON keys are: `title`, `metadata`, `decision`, `core`, `paper_objects`, `pipeline`, `actions`, `route`, `detour`, `difficulty`, `evidence`, and `start_here`. Each `paper_objects.items[]` entry uses `kind`, `label`, `image`, `paper_text`, `reading_focus`, `evidence`, and `confidence`; equation items may also include `transcription`. Inspect the script's `--example` output for the exact schema. Link the generated HTML after the inline card. Do not put mutable paper data inside the installed Skill directory.
+The JSON keys are: `title`, `metadata`, `decision`, `core`, `paper_objects`, `pipeline`, `actions`, `route`, `detour`, `difficulty`, `evidence`, and `start_here`. Use `core.problems` as a list and `core.method` as the method description; do not use the retired `problem`, `baseline_failure`, or `key_insight` fields. Each `paper_objects.items[]` entry uses `kind`, `label`, `image`, `paper_text`, `reading_focus`, `evidence`, and `confidence`; equation items may also include `transcription`. Inspect the script's `--example` output for the exact schema. Link the generated HTML after the inline card. Do not put mutable paper data inside the installed Skill directory.
 
 ## Failure cases
 
 Do not output:
 
 - one dense table containing the entire card;
+- separate `问题`, `原方法为什么不行`, and `关键洞察` cards that repeat the same causal story;
 - an AI-redrawn figure presented in place of a paper original;
 - a formula transcription without the original crop or symbol-by-symbol verification;
 - three narrow action columns that force locators or explanations into vertical text;
@@ -167,3 +169,4 @@ Do not output:
 - a stop without a purpose or exit question;
 - invented locators, venues, or metadata;
 - a card followed by a duplicate prose summary.
+
