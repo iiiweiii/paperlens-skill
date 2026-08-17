@@ -10,7 +10,7 @@ Read [reading-card.md](reading-card.md) and render its required card before any 
 2. **Decision row**: `为什么读`, `读完获得什么`, and `预计时间`.
 3. **Core reasoning**: problem, baseline failure, and key insight as three separated blocks, not three cramped table rows.
 4. **Pipeline delta**: changed stages highlighted; reused stages muted.
-5. **Action board**: `必看`, `可跳过`, and `暂不深究`, using exact paper locators.
+5. **Action board**: `必看`, `可跳过`, and `暂不深究` as full-width horizontal lanes, using exact paper locators. Never place many must-read items inside one narrow category column.
 6. **Reading journey**: 4–7 semantic stages. Every stage states its purpose, exact locator, and an exit question; add a prerequisite detour when needed.
 7. **Difficulty chips**: math, implementation, and background, each with one short reason.
 8. **Evidence footer**: evidence status, confidence, and missing fields.
