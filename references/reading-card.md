@@ -5,9 +5,10 @@ Use this contract for every `/start` response. The result has two layers: a spac
 ## Layout principles
 
 - Start with the inline card. Add no introductory paragraph.
-- Use five visibly separated zones with blank space between them; do not compress everything into one table.
+- Use six visibly separated zones with blank space between them; do not compress everything into one table.
 - Keep each idea short, but allow two or three lines when causal explanation needs room.
 - Put the reading decision first and evidence last.
+- Include 1–3 high-value objects cropped from the actual paper PDF: at least one figure or table, plus a key equation when the paper has one. Never substitute an AI-redrawn diagram.
 - Render `阅读取舍` as three full-width horizontal lanes: category label on the left and reading items flowing to the right. Never squeeze all `必看` items into one narrow vertical column.
 - Use exact paper locators. Mark missing metadata as `未核实` instead of recalling it from memory.
 - End with exactly one immediate action.
@@ -47,6 +48,22 @@ Replace every placeholder and remove inapplicable optional content.
 >
 > **Pipeline delta**  
 > `…` → `Representation ★changed` → `Optimization reused` → `Rendering ★changed` → `…`
+>
+> ---
+>
+> ### 论文原图、原表与公式
+>
+> **{Fig./Table label} · 论文原始裁剪**  
+> ![{label} original crop]({absolute local image path})  
+> **论文原文 / Caption：** {verified caption or defining sentence}  
+> **读它时看什么：** {one focused reading instruction}  
+> `Evidence: {page + locator}`　`Confidence: {level}`
+>
+> **{Eq. label} · 论文原公式**  
+> ![{label} original equation crop]({absolute local image path})  
+> **核对后的转写：** `{optional transcription checked against crop}`  
+> **它在方法里的作用：** {why this equation exists}  
+> `Evidence: {page + locator}`　`Confidence: {level}`
 >
 > ---
 >
@@ -112,6 +129,20 @@ Each stop requires:
 
 Add a detour only when it unblocks the next stage. A detour names the missing concept or locator and the minimum understanding required before returning.
 
+## Original paper objects
+
+Prepare the visual evidence before rendering `/start`:
+
+- Render the exact PDF page and crop the original figure, table, or numbered equation into a workspace-local image.
+- Preserve the figure/table number, axes, legend, panel labels, and enough caption context to prevent misreading.
+- For equations, show the original crop. Add OCR or LaTeX only after checking every symbol against the crop; label it as a transcription, never as source text.
+- Save crops under the active workspace, for example `paperlens-data/<paper-slug>/media/`. Do not store paper-derived images in the installed Skill.
+- Put the crop path in `paper_objects.items[].image`. The renderer embeds local files as data URIs so the output HTML remains self-contained.
+- If the paper has no meaningful equation, include figures/tables only and state `本文无需要优先理解的关键公式`. Never invent an equation to fill the section.
+- If a crop cannot be verified, omit it and report the extraction gap instead of using a substitute image.
+
+Limit the default card to 1–3 objects: typically the method overview, the key equation, and the strongest result or ablation. More objects belong in `/figure` or `/formula` follow-ups.
+
 ## HTML card
 
 When the route has four or more stops, write the analyzed card data to a workspace-local JSON file and run:
@@ -120,13 +151,15 @@ When the route has four or more stops, write the analyzed card data to a workspa
 python scripts/render_reading_card.py card.json reading-card.html
 ```
 
-The JSON keys are: `title`, `metadata`, `decision`, `core`, `pipeline`, `actions`, `route`, `detour`, `difficulty`, `evidence`, and `start_here`. Inspect the script's `--example` output for the exact schema. Link the generated HTML after the inline card. Do not put mutable paper data inside the installed Skill directory.
+The JSON keys are: `title`, `metadata`, `decision`, `core`, `paper_objects`, `pipeline`, `actions`, `route`, `detour`, `difficulty`, `evidence`, and `start_here`. Each `paper_objects.items[]` entry uses `kind`, `label`, `image`, `paper_text`, `reading_focus`, `evidence`, and `confidence`; equation items may also include `transcription`. Inspect the script's `--example` output for the exact schema. Link the generated HTML after the inline card. Do not put mutable paper data inside the installed Skill directory.
 
 ## Failure cases
 
 Do not output:
 
 - one dense table containing the entire card;
+- an AI-redrawn figure presented in place of a paper original;
+- a formula transcription without the original crop or symbol-by-symbol verification;
 - three narrow action columns that force locators or explanations into vertical text;
 - a paragraph merely headed “Reading Card”;
 - a route drawn as a single unannotated arrow chain;
