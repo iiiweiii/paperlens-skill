@@ -8,6 +8,7 @@ Use this contract for every `/start` response. The result has two layers: a spac
 - Use five visibly separated zones with blank space between them; do not compress everything into one table.
 - Keep each idea short, but allow two or three lines when causal explanation needs room.
 - Put the reading decision first and evidence last.
+- Render `阅读取舍` as three full-width horizontal lanes: category label on the left and reading items flowing to the right. Never squeeze all `必看` items into one narrow vertical column.
 - Use exact paper locators. Mark missing metadata as `未核实` instead of recalling it from memory.
 - End with exactly one immediate action.
 
@@ -126,6 +127,7 @@ The JSON keys are: `title`, `metadata`, `decision`, `core`, `pipeline`, `actions
 Do not output:
 
 - one dense table containing the entire card;
+- three narrow action columns that force locators or explanations into vertical text;
 - a paragraph merely headed “Reading Card”;
 - a route drawn as a single unannotated arrow chain;
 - a generic section-order route;
