@@ -8,7 +8,7 @@ Read [reading-card.md](reading-card.md) and render its required card before any 
 
 1. **Identity strip**: verified title, authors, year, venue, task, and representation.
 2. **Decision row**: `为什么读`, `读完获得什么`, and `预计时间`.
-3. **Core reasoning**: problem, baseline failure, and key insight as three separated blocks, not three cramped table rows.
+3. **Problems and method**: merge the task difficulty and baseline limitations into a direct `论文遇到的问题` bullet list, followed by one `论文的方法` block. Do not output separate `问题`, `原方法为什么不行`, or `关键洞察` cards.
 4. **Pipeline delta**: changed stages highlighted; reused stages muted.
 5. **Original paper objects**: embed 1–3 verified crops from the PDF—at least one figure/table and a key equation when applicable—with number, caption/definition, reading focus, evidence, and confidence.
 6. **Action board**: `必看`, `可跳过`, and `暂不深究` as full-width horizontal lanes, using exact paper locators. Never place many must-read items inside one narrow category column.
@@ -69,9 +69,8 @@ Never claim a derivation is in the paper if you supplied it yourself. State assu
 Return:
 
 - **Previous method**.
-- **Failure mode**.
-- **Key insight**.
-- **Technical change**.
+- **论文遇到的问题**: list distinct task failures and baseline limitations without repetition.
+- **论文的方法**: state what the paper proposes, including the technical change.
 - **Pipeline delta**: `changed / reused / not relevant`.
 - **Why it works**: mechanism and evidence.
 - **Novelty split**: `核心创新 / 辅助设计 / 工程实现`.
@@ -186,3 +185,4 @@ Confidence: 0.95
 ```
 
 Use solid-edge language only for paper or externally verified evidence. Describe AI-inferred relations as tentative; never convert semantic similarity alone into `IMPROVES` or `FOLLOW_UP`.
+
