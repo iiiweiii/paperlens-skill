@@ -16,7 +16,7 @@ PaperLens 是一个 Codex Skill，用于辅助研究者交互式阅读论文。�
 
 ### PaperLens 能做什么
 
-- 上传论文 PDF 后生成简洁的阅读路线。
+- 上传论文 PDF 后生成真正可扫读的卡片式 Reading Card，而不是一段改写摘要。
 - 结合上下文解释选中段落、图、表和公式。
 - 将论文创新定位到 CV/3D Vision 技术管线中。
 - 区分复用组件、技术修改和真正的核心创新。
@@ -29,7 +29,7 @@ PaperLens 是一个 Codex Skill，用于辅助研究者交互式阅读论文。�
 
 | 命令 | 作用 |
 |---|---|
-| `/start` | 生成 Reading Card、阅读路线、前置知识和难度判断。 |
+| `/start` | 生成卡片式 Reading Card、必看清单、阅读路线、前置知识和难度判断。 |
 | `/explain` | 解释一段内容在做什么、为什么存在以及位于管线哪里。 |
 | `/figure N` | 解释图或表的目的、阅读顺序和作者希望表达的结论。 |
 | `/formula N` | 从直觉、变量和用途开始解释公式，再按需展开推导。 |
@@ -42,6 +42,41 @@ PaperLens 是一个 Codex Skill，用于辅助研究者交互式阅读论文。�
 | `/map` | 展示或更新带有证据的轻量论文关系图。 |
 
 也可以直接使用自然语言。例如，“Fig. 4 没看懂”等价于 `/figure 4`。
+
+### Reading Card 长什么样
+
+`/start` 不再返回连续段落，而是先给出一张可直接指导阅读的卡片：
+
+> ### 📄 PaperLens · Reading Card
+> **Paper title**  
+> `Venue/Year` `Task` `Representation`
+>
+> | 阅读决策 | 结论 |
+> |---|---|
+> | **为什么读** | 这篇论文补上了什么具体知识缺口 |
+> | **读完获得** | 读完后能做出的具体判断 |
+> | **预计时间** | `15 min 快读` · `60 min 深读` |
+>
+> | 核心判断 | 内容 |
+> |---|---|
+> | 🎯 **Problem** | 论文试图解决的具体失败模式 |
+> | ⚠️ **Baseline failure** | 原方法为什么在这里失效 |
+> | 💡 **Key insight** | 作者用来打开问题的关键观察 |
+>
+> **Pipeline delta**  
+> `Input reused` → `Pose reused` → `Representation ★changed` → `Rendering ★changed` → `Loss reused`
+>
+> | 阅读动作 | 精确位置 |
+> |---|---|
+> | ✅ **必看** | `Fig. 2` · `§3.2` · `Table 3` |
+> | ⏭️ **可跳过** | 暂时不影响理解的章节 |
+> | 🧊 **暂不深究** | 需要额外前置知识的公式或模块 |
+>
+> `① Fig. 2` → `② §3.1` → `③ Eq. 7` → `④ Table 3`
+>
+> **Evidence** `论文 PDF 已定位` · **Confidence** `High`
+>
+> ▶ **START HERE：先看 Fig. 2，并确认输入、表示和输出。**
 
 ### Evidence 与 Confidence
 
@@ -124,6 +159,7 @@ paperlens-skill/
 │   ├── commands.md
 │   ├── cv-3d-pipeline.md
 │   ├── evidence-and-confidence.md
+│   ├── reading-card.md
 │   └── paper-map.md
 └── scripts/
     └── paper_map.py
@@ -147,7 +183,7 @@ It is especially suited to 3D Vision topics such as NeRF, 3D Gaussian Splatting,
 
 ## What PaperLens does
 
-- Creates a concise reading route after you attach a paper PDF.
+- Creates a genuinely scannable Reading Card after you attach a paper PDF instead of returning a renamed prose summary.
 - Explains selected paragraphs, figures, tables, and equations in context.
 - Locates each contribution in a CV/3D Vision pipeline.
 - Separates reused components, technical changes, and actual novelty.
@@ -160,7 +196,7 @@ It is especially suited to 3D Vision topics such as NeRF, 3D Gaussian Splatting,
 
 | Command | Purpose |
 |---|---|
-| `/start` | Build a Reading Card, reading route, prerequisites, and difficulty estimate. |
+| `/start` | Build a card-style Reading Card with must-read items, a route, prerequisites, and difficulty estimates. |
 | `/explain` | Explain what a passage does, why it exists, and where it sits in the pipeline. |
 | `/figure N` | Explain the purpose, reading order, and conclusion of a figure or table. |
 | `/formula N` | Explain an equation from intuition and variables to optional derivation. |
@@ -173,6 +209,41 @@ It is especially suited to 3D Vision topics such as NeRF, 3D Gaussian Splatting,
 | `/map` | Show or update a lightweight evidence-bearing paper relation map. |
 
 Natural-language requests work too. For example, “Fig. 4 没看懂” is treated like `/figure 4`.
+
+## What the Reading Card looks like
+
+`/start` begins with a bounded, actionable card rather than continuous prose:
+
+> ### 📄 PaperLens · Reading Card
+> **Paper title**  
+> `Venue/Year` `Task` `Representation`
+>
+> | Reading decision | Answer |
+> |---|---|
+> | **Why read it** | The specific knowledge gap filled by the paper |
+> | **What you gain** | The concrete judgment you should make after reading |
+> | **Time** | `15 min quick` · `60 min deep` |
+>
+> | Core judgment | Content |
+> |---|---|
+> | 🎯 **Problem** | The precise failure mode addressed by the paper |
+> | ⚠️ **Baseline failure** | Why the direct baseline breaks in this setting |
+> | 💡 **Key insight** | The observation that unlocks the method |
+>
+> **Pipeline delta**  
+> `Input reused` → `Pose reused` → `Representation ★changed` → `Rendering ★changed` → `Loss reused`
+>
+> | Action | Exact location |
+> |---|---|
+> | ✅ **Must read** | `Fig. 2` · `§3.2` · `Table 3` |
+> | ⏭️ **Can skip** | Material that can wait without blocking comprehension |
+> | 🧊 **Defer** | A formula or module requiring extra prerequisites |
+>
+> `① Fig. 2` → `② §3.1` → `③ Eq. 7` → `④ Table 3`
+>
+> **Evidence** `located in attached PDF` · **Confidence** `High`
+>
+> ▶ **START HERE: inspect Fig. 2 and identify the input, representation, and output.**
 
 ## Evidence and confidence
 
@@ -257,6 +328,7 @@ paperlens-skill/
 │   ├── commands.md
 │   ├── cv-3d-pipeline.md
 │   ├── evidence-and-confidence.md
+│   ├── reading-card.md
 │   └── paper-map.md
 └── scripts/
     └── paper_map.py
@@ -267,4 +339,3 @@ paperlens-skill/
 PaperLens is a reading assistant, not a full literature-management platform. It prioritizes focused explanations, verifiable evidence, and a small number of meaningful paper relations over exhaustive summaries or automatically generated knowledge graphs.
 
 <p align="right"><a href="#paperlens">Back to top</a></p>
-
