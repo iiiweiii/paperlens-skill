@@ -10,11 +10,12 @@ Read [reading-card.md](reading-card.md) and render its required card before any 
 2. **Decision row**: `为什么读`, `读完获得什么`, and `预计时间`.
 3. **Core reasoning**: problem, baseline failure, and key insight as three separated blocks, not three cramped table rows.
 4. **Pipeline delta**: changed stages highlighted; reused stages muted.
-5. **Action board**: `必看`, `可跳过`, and `暂不深究` as full-width horizontal lanes, using exact paper locators. Never place many must-read items inside one narrow category column.
-6. **Reading journey**: 4–7 semantic stages. Every stage states its purpose, exact locator, and an exit question; add a prerequisite detour when needed.
-7. **Difficulty chips**: math, implementation, and background, each with one short reason.
-8. **Evidence footer**: evidence status, confidence, and missing fields.
-9. **Start here**: exactly one immediate reading action.
+5. **Original paper objects**: embed 1–3 verified crops from the PDF—at least one figure/table and a key equation when applicable—with number, caption/definition, reading focus, evidence, and confidence.
+6. **Action board**: `必看`, `可跳过`, and `暂不深究` as full-width horizontal lanes, using exact paper locators. Never place many must-read items inside one narrow category column.
+7. **Reading journey**: 4–7 semantic stages. Every stage states its purpose, exact locator, and an exit question; add a prerequisite detour when needed.
+8. **Difficulty chips**: math, implementation, and background, each with one short reason.
+9. **Evidence footer**: evidence status, confidence, and missing fields.
+10. **Start here**: exactly one immediate reading action.
 
 Do not provide a long summary or place prose before the card. Do not call a list of headings a card. Do not render the route as `Abstract → Introduction → Method → Experiments`. If pagination is unreliable, cite section and object labels instead of pages. For four or more route stages, use `scripts/render_reading_card.py` to produce the detailed HTML card and link it after the inline overview.
 
@@ -36,6 +37,8 @@ If the supplied selection lacks context, inspect the preceding definition and fo
 
 Inspect the actual figure, caption, surrounding paragraph, and paper references to it. Return:
 
+- **论文原图**: show the verified local crop before interpretation.
+
 - **这张图想回答什么？**
 - **阅读顺序**: panels, arrows, axes, legend, or rows/columns.
 - **模块/坐标含义**.
@@ -48,7 +51,7 @@ For qualitative examples, distinguish cherry-picked visual evidence from aggrega
 
 ## `/formula <N>`
 
-Inspect the equation, symbol definitions, preceding motivation, and subsequent use. Explain in this order:
+Inspect the equation, symbol definitions, preceding motivation, and subsequent use. First show **论文原公式** as a verified crop and put any checked transcription beside it. Then explain in this order:
 
 1. **公式在算什么？**
 2. **输入、输出与单位/shape** when meaningful.
