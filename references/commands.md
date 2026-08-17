@@ -8,15 +8,15 @@ Read [reading-card.md](reading-card.md) and render its required card before any 
 
 1. **Identity strip**: verified title, authors, year, venue, task, and representation.
 2. **Decision row**: `为什么读`, `读完获得什么`, and `预计时间`.
-3. **Core cells**: problem, baseline failure, and key insight; each limited to two lines.
+3. **Core reasoning**: problem, baseline failure, and key insight as three separated blocks, not three cramped table rows.
 4. **Pipeline delta**: changed stages highlighted; reused stages muted.
 5. **Action board**: `必看`, `可跳过`, and `暂不深究`, using exact paper locators.
-6. **Reading route**: 4–7 ordered stops, not a generic section list.
+6. **Reading journey**: 4–7 semantic stages. Every stage states its purpose, exact locator, and an exit question; add a prerequisite detour when needed.
 7. **Difficulty chips**: math, implementation, and background, each with one short reason.
 8. **Evidence footer**: evidence status, confidence, and missing fields.
 9. **Start here**: exactly one immediate reading action.
 
-Do not provide a long summary or place prose before the card. Do not call a list of headings a card. If pagination is unreliable, cite section and object labels instead of pages.
+Do not provide a long summary or place prose before the card. Do not call a list of headings a card. Do not render the route as `Abstract → Introduction → Method → Experiments`. If pagination is unreliable, cite section and object labels instead of pages. For four or more route stages, use `scripts/render_reading_card.py` to produce the detailed HTML card and link it after the inline overview.
 
 ## `/explain <target>`
 
