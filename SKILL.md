@@ -21,7 +21,7 @@ For detailed command contracts, read [references/commands.md](references/command
 
 Treat natural-language equivalents exactly like commands:
 
-- `/start`: render a compact visual Reading Card and reading route; never return a prose summary with a “Reading Card” heading.
+- `/start`: render a spacious, sectioned Reading Card and a purpose-driven reading journey; never return a prose summary or a bare chain of section names.
 - `/explain <selection|section|page>`: explain what, why, pipeline position, baseline difference, and takeaways.
 - `/figure <N>`: explain a figure or table by purpose and reading order.
 - `/formula <N>`: explain an equation from intuition to optional derivation.
@@ -57,6 +57,8 @@ Mark each stage as `changed`, `reused`, or `not relevant`. Distinguish geometric
 
 When a multi-stage pipeline is materially easier to understand visually, create a small self-contained HTML flowchart with phase colors, clear branches, dark/light theme support, and narrow-screen layout. Link the artifact and also give a one-sentence textual conclusion. Do not create a visual for a simple one-step explanation.
 
+For `/start` routes with four or more stops, generate a self-contained HTML card with `scripts/render_reading_card.py`. Build its JSON input from verified paper evidence, save the HTML in the active workspace, and link it after the inline card. The HTML is the detailed visual route; the chat card remains a readable overview.
+
 ## Compare against the correct baseline
 
 Identify the original or direct baseline before judging novelty. Separate:
@@ -83,7 +85,7 @@ Read [references/paper-map.md](references/paper-map.md) before updating a map. U
 ## Quality bar
 
 - Prefer causal explanation over abstract paraphrase.
-- Render `/start` as a scannable card with bounded fields, chips, a pipeline delta, a must-read list, and one immediate action. Do not place introductory prose before the card.
+- Render `/start` as a spacious card with clear section breaks, short content blocks, a pipeline delta, a must-read board, and one immediate action. Do not compress the whole paper into one dense table or place introductory prose before the card.
 - Keep the first layer readable; expand mathematics only when useful or requested.
 - State what ablations or experiments actually demonstrate, not what they merely suggest.
 - Separate author claims from measured results and your critique.
