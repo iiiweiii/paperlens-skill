@@ -1,5 +1,4 @@
 interface:
   display_name: "PaperLens"
   short_description: "Evidence-aware scientific paper reading for CV and 3D vision"
-  default_prompt: "Use $paperlens to create a reading route for this paper and explain its core method with evidence."
-
+  default_prompt: "Use $paperlens to create an evidence-aware Reading Card with original paper figures or equations, then build a focused reading route."
