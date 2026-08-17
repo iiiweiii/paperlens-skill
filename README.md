@@ -113,7 +113,7 @@ PaperLens 是一个 Codex Skill，用于辅助研究者交互式阅读论文。�
 > ## ▶ START HERE
 > **先看 Fig. 2，并找出输入、表示、改动阶段和输出。**
 
-四站以上的路线还会通过 `scripts/render_reading_card.py` 生成独立 HTML 卡片：包含彩色 Pipeline、纵向时间线、前置知识旁路、明暗主题和窄屏布局。
+四站以上的路线还会通过 `scripts/render_reading_card.py` 生成独立 HTML 卡片：阅读取舍采用整行横向分区，另外包含彩色 Pipeline、纵向时间线、前置知识旁路、明暗主题和窄屏布局。
 
 ```bash
 python scripts/render_reading_card.py --example
@@ -323,7 +323,7 @@ Natural-language requests work too. For example, “Fig. 4 没看懂” is treat
 > ## ▶ START HERE
 > **Open Fig. 2 and identify the input, representation, changed stages, and output.**
 
-Routes with four or more stops can also be rendered by `scripts/render_reading_card.py` as a standalone HTML card with a colored pipeline, vertical timeline, prerequisite detour, theme switch, and responsive layout.
+Routes with four or more stops can also be rendered by `scripts/render_reading_card.py` as a standalone HTML card with full-width horizontal action lanes, a colored pipeline, vertical timeline, prerequisite detour, theme switch, and responsive layout.
 
 ```bash
 python scripts/render_reading_card.py --example
