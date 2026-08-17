@@ -1,74 +1,134 @@
 # Visual Reading Card contract
 
-Use this contract for every `/start` response. The goal is decision support at a glance, not decorative relabeling of a summary.
+Use this contract for every `/start` response. The result has two layers: a spacious inline overview and, for routes with four or more stops, a detailed self-contained HTML card.
 
-## Required behavior
+## Layout principles
 
-- Start the response with the card. Add no introduction before it.
-- Render one visually bounded Markdown block using a callout/blockquote, compact tables, and inline code chips.
-- Keep every content cell to one or two short lines.
-- Put reading actions before optional background detail.
-- Use exact paper locators for `必看`, `可跳过`, and the reading route.
-- Mark unknown metadata as `未核实`; never fill a card cell from memory.
-- End the card with exactly one `▶ START HERE` action.
-- Add deeper explanation only after the card and only when requested.
+- Start with the inline card. Add no introductory paragraph.
+- Use five visibly separated zones with blank space between them; do not compress everything into one table.
+- Keep each idea short, but allow two or three lines when causal explanation needs room.
+- Put the reading decision first and evidence last.
+- Use exact paper locators. Mark missing metadata as `未核实` instead of recalling it from memory.
+- End with exactly one immediate action.
 
-## Default card template
+## Inline card template
 
-Replace every placeholder. Remove a row only when it truly does not apply; do not leave template text in the response.
+Replace every placeholder and remove inapplicable optional content.
 
-> ### 📄 PaperLens · Reading Card
-> **{Full paper title}**  
-> `{Venue/Year or 未核实}` `Task: {task}` `Representation: {representation}`
+> # 📄 PaperLens
+> ## {Full paper title}
+> `{Venue/Year or 未核实}`　`{task}`　`{representation}`
 >
-> | 阅读决策 | 结论 |
-> |---|---|
-> | **为什么读** | {The specific knowledge or method gap this paper fills} |
-> | **读完获得** | {One concrete capability or judgment the reader should gain} |
-> | **预计时间** | `{quick minutes} min 快读` · `{deep minutes} min 深读` |
+> ---
 >
-> | 核心判断 | 内容 |
-> |---|---|
-> | 🎯 **Problem** | {problem} |
-> | ⚠️ **Baseline failure** | {why the direct baseline fails} |
-> | 💡 **Key insight** | {the observation that unlocks the method} |
+> ### 先决定：值不值得读
+>
+> **为什么读**  
+> {The precise gap this paper fills.}
+>
+> **读完以后，你应该能判断**  
+> {One concrete capability or judgment.}
+>
+> `快读 {minutes} min`　`深读 {minutes} min`　`优先级 {高/中/低}`
+>
+> ---
+>
+> ### 方法主线
+>
+> 🎯 **问题**  
+> {Specific failure mode.}
+>
+> ⚠️ **原方法为什么不行**  
+> {Cause of the baseline failure.}
+>
+> 💡 **关键洞察**  
+> {Observation that unlocks the method.}
 >
 > **Pipeline delta**  
-> `Input {reused/changed}` → `Pose {reused/changed}` → `Representation {reused/changed}` → `Optimization {reused/changed}` → `Rendering {reused/changed}` → `Loss {reused/changed}`
+> `…` → `Representation ★changed` → `Optimization reused` → `Rendering ★changed` → `…`
 >
-> | 阅读动作 | 精确位置 |
-> |---|---|
-> | ✅ **必看** | `{Fig./Eq./Table/§}` · `{Fig./Eq./Table/§}` · `{Fig./Eq./Table/§}` |
-> | ⏭️ **可跳过** | `{location}` — {why it can wait} |
-> | 🧊 **暂不深究** | `{location/concept}` — {what prerequisite is missing} |
+> ---
 >
-> **Reading route**  
-> `① {object}` → `② {object}` → `③ {object}` → `④ {object}`
+> ### 阅读取舍
 >
-> **Difficulty**  
-> `数学 {★☆☆☆☆–★★★★★}: {reason}` · `代码 {stars}: {reason}` · `背景 {stars}: {reason}`
+> | | 精确位置 | 目的 |
+> |---|---|---|
+> | ✅ **必看** | `{locator}` | {why this object matters} |
+> | ✅ **必看** | `{locator}` | {why this object matters} |
+> | ⏭️ **稍后再读** | `{locator}` | {why it can wait} |
+> | 🧊 **先补背景** | `{concept/locator}` | {missing prerequisite} |
 >
-> **Evidence** `{status}` · **Confidence** `{High/Medium/Low}`  
-> {Locators used; list any unverified or missing field}
+> ---
 >
-> ▶ **START HERE：{one exact first action}**
+> ### 阅读旅程
+>
+> **01 · 建立全局图**　`{locator}`  
+> 目的：{what to understand}  
+> **离开前回答：** {exit question}
+>
+> **02 · 拆核心机制**　`{locator}`  
+> 目的：{what to understand}  
+> **离开前回答：** {exit question}
+>
+> **03 · 检查证据**　`{locator}`  
+> 目的：{what to verify}  
+> **离开前回答：** {exit question}
+>
+> **04 · 确认边界**　`{locator}`  
+> 目的：{what limitation or assumption to identify}  
+> **离开前回答：** {exit question}
+>
+> ↳ **如果第 {N} 站卡住：** 先看 `{prerequisite locator/concept}`，只补到能回答该站问题为止。
+>
+> ---
+>
+> ### 难度与可信度
+> `数学 {stars}` {reason}　·　`代码 {stars}` {reason}　·　`背景 {stars}` {reason}
+>
+> **Evidence** `{status and locators}`  
+> **Confidence** `{High/Medium/Low}`　{missing or unverified fields}
+>
+> ## ▶ START HERE
+> **{One exact first action, including what to look for.}**
 
-## Formatting rules
+## Route design
 
-- Preserve the title strip, the three compact tables/rows, pipeline, route, evidence footer, and start action.
-- Use bold labels, emoji, and code chips as visual hierarchy; do not turn each cell into a paragraph.
-- Limit `必看` to 3–5 objects. A section title alone is insufficient when a key figure, equation, algorithm, or table is available.
-- Use `changed`, `reused`, or `N/A` consistently in the pipeline. Highlight changed stages with `★changed`.
-- Estimate reading time from paper length and technical density; mark it `[AI 推断]` in the evidence footer.
-- If the card exceeds roughly one screen, shorten content rather than splitting it into several cards.
+Build a cognitive route, not a document-order route. Use 4–7 stops selected from these roles:
+
+1. **Orient**: obtain the paper's input, representation, output, and claimed delta from the overview figure or method diagram.
+2. **Question**: identify the baseline failure from a motivating figure, introduction passage, or diagnostic experiment.
+3. **Mechanism**: understand the changed module from the key section, equation, algorithm, or figure.
+4. **Evidence**: test the central claim against the strongest main result and a targeted ablation.
+5. **Boundary**: identify assumptions, failure cases, missing tests, or domain limits.
+6. **Context**: visit related work only when it resolves a specific comparison or terminology gap.
+
+Each stop requires:
+
+- a semantic stage name, never only a section number;
+- one exact locator;
+- one reading purpose;
+- one exit question that proves the stop is complete.
+
+Add a detour only when it unblocks the next stage. A detour names the missing concept or locator and the minimum understanding required before returning.
+
+## HTML card
+
+When the route has four or more stops, write the analyzed card data to a workspace-local JSON file and run:
+
+```text
+python scripts/render_reading_card.py card.json reading-card.html
+```
+
+The JSON keys are: `title`, `metadata`, `decision`, `core`, `pipeline`, `actions`, `route`, `detour`, `difficulty`, `evidence`, and `start_here`. Inspect the script's `--example` output for the exact schema. Link the generated HTML after the inline card. Do not put mutable paper data inside the installed Skill directory.
 
 ## Failure cases
 
 Do not output:
 
-- a paragraph headed “Reading Card”;
-- nine prose subsections with no visual boundary;
-- a generic `Abstract → Introduction → Method → Experiments` route;
-- invented page numbers or unverified venue metadata;
-- a pipeline where every stage is marked changed;
+- one dense table containing the entire card;
+- a paragraph merely headed “Reading Card”;
+- a route drawn as a single unannotated arrow chain;
+- a generic section-order route;
+- a stop without a purpose or exit question;
+- invented locators, venues, or metadata;
 - a card followed by a duplicate prose summary.
