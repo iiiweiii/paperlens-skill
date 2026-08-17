@@ -27,9 +27,11 @@ EXAMPLE: dict[str, Any] = {
         "priority": "High",
     },
     "core": {
-        "problem": "The direct baseline fails under the paper's target condition.",
-        "baseline_failure": "Its representation or renderer ignores the relevant constraint.",
-        "key_insight": "Move the constraint into the stage where the failure originates.",
+        "problems": [
+            "The baseline fails under the paper's target condition.",
+            "Its representation or renderer ignores the relevant constraint.",
+        ],
+        "method": "The paper moves the constraint into the stage where the failure originates.",
     },
     "paper_objects": {
         "items": [
@@ -145,6 +147,10 @@ def require(data: dict[str, Any]) -> None:
         raise ValueError(f"Missing required keys: {', '.join(missing)}")
     if not isinstance(data["route"], list) or not data["route"]:
         raise ValueError("route must contain at least one reading stage")
+    if not isinstance(data["core"].get("problems"), list) or not data["core"]["problems"]:
+        raise ValueError("core.problems must be a non-empty list")
+    if not data["core"].get("method"):
+        raise ValueError("core.method is required")
     objects = data["paper_objects"].get("items", [])
     if not objects:
         raise ValueError("paper_objects.items must contain at least one real figure, table, or equation")
@@ -223,6 +229,7 @@ def render(data: dict[str, Any], base_dir: Path | None = None) -> str:
     )
     decision = data["decision"]
     core = data["core"]
+    problem_items = "".join(f'<li>{esc(item)}</li>' for item in core["problems"])
     pipeline_parts: list[str] = []
     for index, stage in enumerate(data["pipeline"]):
         if index:
@@ -282,6 +289,11 @@ def render(data: dict[str, Any], base_dir: Path | None = None) -> str:
 .action-item,.action-item:first-of-type{{display:flex;flex-direction:column;gap:9px;min-width:0;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2)}}
 .action-item code{{display:block;width:max-content;max-width:100%;white-space:normal;overflow-wrap:anywhere;line-height:1.45}}
 .action-item span{{min-width:0;overflow-wrap:anywhere}}
+.core-summary{{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:16px}}
+.core-summary .panel{{min-height:0}}
+.problem-list{{display:grid;gap:10px;margin:0;padding-left:21px}}
+.problem-list li{{padding-left:3px}}
+.method-text{{font-size:17px;line-height:1.7}}
 .paper-objects{{display:grid;gap:22px}}
 .paper-object{{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.9fr);border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--surface-2)}}
 .object-media{{display:grid;place-items:center;min-height:240px;padding:20px;background:#fff;border-right:1px solid var(--line)}}
@@ -296,7 +308,7 @@ def render(data: dict[str, Any], base_dir: Path | None = None) -> str:
 .transcription code{{width:100%;white-space:normal;overflow-wrap:anywhere;background:transparent;border:0;padding:0;font-family:"Cambria Math",ui-monospace,monospace}}
 .object-evidence{{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}}
 .object-evidence span{{padding:5px 8px;border-radius:8px;background:var(--surface);border:1px solid var(--line);font-size:12px;color:var(--muted)}}
-@media(max-width:760px){{.action-col{{grid-template-columns:1fr;grid-auto-flow:row;grid-auto-columns:auto;overflow:visible}}.action-col h3{{padding:0 0 2px}}.action-item{{display:grid;grid-template-columns:1fr}}.paper-object{{grid-template-columns:1fr}}.object-media{{border-right:0;border-bottom:1px solid var(--line);min-height:180px}}}}
+@media(max-width:760px){{.action-col{{grid-template-columns:1fr;grid-auto-flow:row;grid-auto-columns:auto;overflow:visible}}.action-col h3{{padding:0 0 2px}}.action-item{{display:grid;grid-template-columns:1fr}}.core-summary{{grid-template-columns:1fr}}.paper-object{{grid-template-columns:1fr}}.object-media{{border-right:0;border-bottom:1px solid var(--line);min-height:180px}}}}
 </style>
 </head>
 <body>
@@ -307,10 +319,10 @@ def render(data: dict[str, Any], base_dir: Path | None = None) -> str:
 <div class="panel"><span class="label">为什么读</span><strong>{esc(decision["why_read"])}</strong></div>
 <div class="panel"><span class="label">读完以后，你应该能判断</span><strong>{esc(decision["outcome"])}</strong></div>
 <div class="panel"><span class="label">阅读投入</span><div class="metrics"><span class="metric">快读 {esc(decision["quick_minutes"])} min</span><span class="metric">深读 {esc(decision["deep_minutes"])} min</span><span class="metric">优先级 {esc(decision["priority"])}</span></div></div></div></section>
-<section><div class="section-head"><span class="section-no">02</span><h2>方法主线</h2></div><div class="grid core">
-<div class="panel"><span class="label">🎯 问题</span><strong>{esc(core["problem"])}</strong></div>
-<div class="panel"><span class="label">⚠️ 原方法为什么不行</span><strong>{esc(core["baseline_failure"])}</strong></div>
-<div class="panel"><span class="label">💡 关键洞察</span><strong>{esc(core["key_insight"])}</strong></div></div><div class="pipeline">{''.join(pipeline_parts)}</div></section>
+<section><div class="section-head"><span class="section-no">02</span><h2>问题与方法</h2></div><div class="core-summary">
+<div class="panel"><span class="label">🎯 论文遇到的问题</span><ul class="problem-list">{problem_items}</ul></div>
+<div class="panel"><span class="label">🛠️ 论文的方法</span><div class="method-text">{esc(core["method"])}</div></div>
+</div><div class="pipeline">{''.join(pipeline_parts)}</div></section>
 <section><div class="section-head"><span class="section-no">03</span><h2>论文原图、原表与公式</h2></div><div class="paper-objects">{paper_objects}</div></section>
 <section><div class="section-head"><span class="section-no">04</span><h2>阅读取舍</h2></div><div class="action-grid">
 <div class="action-col"><h3>✅ 必看</h3>{render_items(actions.get("must_read", []), "未定位")}</div>
@@ -352,3 +364,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
