@@ -4,19 +4,19 @@ Use these output contracts as defaults, then shorten them when the user's questi
 
 ## `/start` — Reading Card
 
-Return:
+Read [reading-card.md](reading-card.md) and render its required card before any explanation. The card must contain:
 
-1. **Paper**: title, authors, year, venue only when verified from the paper.
-2. **一句话**: problem plus key solution, not an abstract rewrite.
-3. **Why this paper**: the gap in the direct baseline.
-4. **Core ideas**: at most three.
-5. **Pipeline position**: stages changed versus reused.
-6. **Recommended reading**: exact sections, figures, tables, or equations.
-7. **Suggested order**: a short route such as `Fig. 2 → Introduction → §3.1 → §3.2 → Table 2 → Limitations`.
-8. **Prerequisites**: only concepts that block comprehension.
-9. **Difficulty**: math, implementation, and background on a five-point scale, with one reason each.
+1. **Identity strip**: verified title, authors, year, venue, task, and representation.
+2. **Decision row**: `为什么读`, `读完获得什么`, and `预计时间`.
+3. **Core cells**: problem, baseline failure, and key insight; each limited to two lines.
+4. **Pipeline delta**: changed stages highlighted; reused stages muted.
+5. **Action board**: `必看`, `可跳过`, and `暂不深究`, using exact paper locators.
+6. **Reading route**: 4–7 ordered stops, not a generic section list.
+7. **Difficulty chips**: math, implementation, and background, each with one short reason.
+8. **Evidence footer**: evidence status, confidence, and missing fields.
+9. **Start here**: exactly one immediate reading action.
 
-Do not provide a long summary. If pagination is unreliable, cite section and object labels instead of pages.
+Do not provide a long summary or place prose before the card. Do not call a list of headings a card. If pagination is unreliable, cite section and object labels instead of pages.
 
 ## `/explain <target>`
 
@@ -183,4 +183,3 @@ Confidence: 0.95
 ```
 
 Use solid-edge language only for paper or externally verified evidence. Describe AI-inferred relations as tentative; never convert semantic similarity alone into `IMPROVES` or `FOLLOW_UP`.
-
