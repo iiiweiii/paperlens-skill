@@ -67,11 +67,15 @@ PaperLens 是一个 Codex Skill，用于辅助研究者交互式阅读论文。�
 >
 > ---
 >
-> ### 02 · 方法主线
+> ### 02 · 问题与方法
 >
-> 🎯 **问题**：论文试图解决的具体失败模式。  
-> ⚠️ **原方法为什么不行**：失败来自哪个假设或管线阶段。  
-> 💡 **关键洞察**：作者把约束放回问题真正发生的位置。
+> 🎯 **论文遇到的问题**
+>
+> - 目标场景下出现的具体失败。
+> - 原有表示或渲染阶段忽略了关键约束。
+>
+> 🛠️ **论文的方法**  
+> 作者提出的技术路线，以及它如何对应解决上述问题。
 >
 > `Input reused` → `Representation ★changed` → `Rendering ★changed` → `Output reused`
 >
@@ -292,11 +296,15 @@ Natural-language requests work too. For example, “Fig. 4 没看懂” is treat
 >
 > ---
 >
-> ### 02 · Method through-line
+> ### 02 · Problems and method
 >
-> 🎯 **Problem:** the precise failure mode.  
-> ⚠️ **Why the baseline fails:** the responsible assumption or pipeline stage.  
-> 💡 **Key insight:** move the constraint to the stage where the failure originates.
+> 🎯 **Problems encountered by the paper**
+>
+> - The concrete failure in the target setting.
+> - The missing constraint in the existing representation or rendering stage.
+>
+> 🛠️ **The paper's method**  
+> The proposed technical route and how it addresses the listed problems.
 >
 > `Input reused` → `Representation ★changed` → `Rendering ★changed` → `Output reused`
 >
@@ -455,3 +463,4 @@ paperlens-skill/
 PaperLens is a reading assistant, not a full literature-management platform. It prioritizes focused explanations, verifiable evidence, and a small number of meaningful paper relations over exhaustive summaries or automatically generated knowledge graphs.
 
 <p align="right"><a href="#paperlens">Back to top</a></p>
+
